@@ -61,7 +61,7 @@ def gen(camera,username):
           yield (b'--frame\r\n'
 				b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
           print("k=",k)
-          if k > 200:
+          if k > 100:
                break
 
 def video_feed(request,username):

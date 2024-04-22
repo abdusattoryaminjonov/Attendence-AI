@@ -32,7 +32,7 @@ class VideoCamera(object):
                 if not os.path.exists(folder_path):
                     os.makedirs(folder_path)
                 
-                if count % 10 == 0 :
+                if count % 5 == 0 :
                     print("ssss")
 
                     save_path = os.path.join(target_directory, folder_path,f"face_{count}.jpg")
