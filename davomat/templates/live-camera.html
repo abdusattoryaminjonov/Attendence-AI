@@ -6,24 +6,48 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <div class="card">
-                <div class="d-flex justify-content-between" style="padding: 20px 30px 10px 20px;">
-                    <h5 class="card-title text-uppercase mb-0">Manage Users</h5>
-                    <div>
-                        <a href="/add_user">
-                            <button type="button" class="btn btn-success">
-                                <i class="fa-solid fa-user-plus" style="color: #ffffff;"></i>
-                            </button>
-                        </a>
-
+            <div class="d-flex justify-content-evenly">
+                <div style="width: 665px;">
+                    <div class="d-flex justify-content-center" style="padding: 15px;">
+                        <!-- <form action=""> -->
+                        <img src="{% url 'video' %}">
+                        <!-- </form> -->
                     </div>
                 </div>
-                <hr>
-                </hr>
-                <div class="card-body">
-                    <!-- <form action=""> -->
-                    <img style="width: 500;height: 500;" src="{% url 'video' %}">
-                    <!-- </form> -->
+                <div>
+                    <div>
+                        <div data-bs-spy="scroll" data-bs-target="#list-example" data-bs-smooth-scroll="true"
+                            class="scrollspy-example" tabindex="0">
+                            <div class="col-lg-12">
+                                <div class="main-box no-header clearfix">
+                                    <div class="main-box-body clearfix">
+                                        <div class="table-responsive"
+                                            style="width:100%;overflow:auto; max-height:470px;">
+                                            <table class="table user-list">
+                                                <thead class="sticky-top bg-white">
+                                                    <tr>
+                                                        <th><span>User</span></th>
+                                                        <th><span>Available DA</span></th>
+                                                        <th><span>Absent DA</span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="color: rgb(32, 32, 218);font-size: 17px;">
+                                                            Abdusattor Yaminjonov
+                                                        </td>
+                                                        <td style="font-size: 15px;">19/04/2024 09:00 </td>
+                                                        <td style="font-size: 15px;">19/04/2024 14:50 </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
