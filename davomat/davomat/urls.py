@@ -28,6 +28,9 @@ urlpatterns = [
     path('add_user',views.add_user,name='add_user'),
     path('user/<int:id>',views.user,name='profil'),
     path('video_feed/<str:username>', views.video_feed, name='video_feed'),
+    path('video/', views.video, name='video'),
+    path('camera/', views.open_live, name='open_live')
+    
 
 ] 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

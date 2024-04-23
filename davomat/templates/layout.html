@@ -32,21 +32,33 @@
                         <a class="nav-link active" aria-current="page" href="/users">Users</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin">Admin</a>
+                        <a class="nav-link" href="/">Attendance</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="#">Attendance</a>
+                        <a class="nav-link" href="{% url 'open_live' %}" id="btn_camera">Live...</a>
                     </li>
                 </ul>
                 <form class="d-flex" role="search">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button  class="btn btn-primary" type="submit" style="border-radius: 25px;">
+                    <button class="btn btn-primary" type="submit" style="border-radius: 25px;">
                         <i class="fa-solid fa-magnifying-glass fa-lg" style="color: #ffffff;"></i>
                     </button>
                 </form>
             </div>
         </div>
     </nav>
+    <script>
+        document.getElementById('btn-camera').addEventListener('click', function () {
+            let image_src = this.dataset.id;
+            console.log(image_src);
+            document.getElementById('camera').setAttribute('src', image_src);
+        })
+        // document.getElementById('btn-close{{i.id}}').addEventListener('click', function () {
+        //     let image_src = this.dataset.id;
+        //     console.log(image_src);
+        //     document.getElementById('camera{{i.id}}').setAttribute('src', '');
+        // })
+    </script>
     <div style="margin-top: 20px;">
         {% block content %}
         {% endblock content %}

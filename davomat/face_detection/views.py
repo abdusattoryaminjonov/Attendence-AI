@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm,UserChangeForm
 from .forms import UpdateUserForm , AddUserForm
 from django.http.response import StreamingHttpResponse
-from .camera import VideoCamera
+from .camera import VideoCamera, Camera
 
 def hello(request):
     return HttpResponse("Hello world!")
@@ -64,6 +64,17 @@ def gen(camera,username):
           if k > 100:
                break
 
+def live(camera):
+     while True:
+          frame = camera.live_frame()
+          yield (b'--frame\r\n'
+				b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
 def video_feed(request,username):
 	return StreamingHttpResponse(gen(VideoCamera(),username),
 					content_type='multipart/x-mixed-replace; boundary=frame')
+def video(request):
+	return StreamingHttpResponse(live(Camera()),
+					content_type='multipart/x-mixed-replace; boundary=frame')
+def open_live(request):
+     return render(request, 'live-camera.html')
