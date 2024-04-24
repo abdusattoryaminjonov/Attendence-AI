@@ -67,6 +67,7 @@ def gen(camera,username):
 def live(camera):
      while True:
           frame = camera.live_frame()
+          
           yield (b'--frame\r\n'
 			b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
