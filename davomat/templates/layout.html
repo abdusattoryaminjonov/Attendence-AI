@@ -38,12 +38,19 @@
                         <a class="nav-link" href="{% url 'open_live' %}" id="btn_camera">Live...</a>
                     </li>
                 </ul>
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-primary" type="submit" style="border-radius: 25px;">
-                        <i class="fa-solid fa-magnifying-glass fa-lg" style="color: #ffffff;"></i>
-                    </button>
-                </form>
+
+                <div class="d-flex justify-content-between" >
+                    <div style="margin-right: 10px;">
+                        <p id="demo"></p>
+                    </div>
+                    <form class="d-flex" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-primary" type="submit" style="border-radius: 25px;">
+                            <i class="fa-solid fa-magnifying-glass fa-lg" style="color: #ffffff;"></i>
+                        </button>
+                    </form>
+                </div>
+               
             </div>
         </div>
     </nav>
@@ -67,5 +74,14 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 </body>
+
+<script>
+    setInterval(myTimer, 1000);
+
+    function myTimer() {
+        const date = new Date();
+        document.getElementById("demo").innerHTML = date.toLocaleTimeString();
+    }
+</script>
 
 </html>

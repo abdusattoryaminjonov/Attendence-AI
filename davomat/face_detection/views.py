@@ -5,7 +5,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm,UserChangeForm
 from .forms import UpdateUserForm , AddUserForm
 from django.http.response import StreamingHttpResponse
+from dataset.test import extract_embeddings,train_model
 from .camera import VideoCamera, Camera
+import subprocess
+
 
 def hello(request):
     return HttpResponse("Hello world!")
@@ -64,10 +67,13 @@ def gen(camera,username):
           if k > 100:
                break
 
+
 def live(camera):
      while True:
+          # frame,name,proba = camera.live_frame()
           frame = camera.live_frame()
           
+          # yield name, proba
           yield (b'--frame\r\n'
 			b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
@@ -76,8 +82,23 @@ def video_feed(request,username):
 					content_type='multipart/x-mixed-replace; boundary=frame')
 
 def video(request):
-	return StreamingHttpResponse(live(Camera()),
+     cam = live(Camera())
+     # name, proba = next(cam)
+     # print(name, proba)
+     cam = StreamingHttpResponse(cam,
 					content_type='multipart/x-mixed-replace; boundary=frame')
+     return cam
+
+	# return StreamingHttpResponse(live(Camera()),
+	# 				content_type='multipart/x-mixed-replace; boundary=frame')
 
 def open_live(request):
      return render(request, 'live-camera.html')
+
+
+def restartmodel(request):
+     
+     extract_embeddings()
+     train_model()
+
+     return redirect('/users')

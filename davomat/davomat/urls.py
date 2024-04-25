@@ -29,7 +29,9 @@ urlpatterns = [
     path('user/<int:id>',views.user,name='profil'),
     path('video_feed/<str:username>', views.video_feed, name='video_feed'),
     path('video/', views.video, name='video'),
-    path('camera/', views.open_live, name='open_live')
+    path('camera/', views.open_live, name='open_live'),
+    path('restart_model/', views.restartmodel, name='restart_model')
+
     
 
 ] 

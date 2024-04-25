@@ -3,7 +3,7 @@ import numpy as np
 import datetime
 import imutils
 import pickle
-
+from PIL import Image
 from django.conf import settings
 from davomat import settings
 
@@ -49,7 +49,14 @@ class VideoCamera(object):
                     os.makedirs(folder_path)
                 
                 if count % 5 == 0 :
+                    hoz_flip = cv2.flip(faces_resize, 1)
+                    ver_flip = cv2.flip(faces_resize, 0)
 
+                    hoz_flip_path = os.path.join(target_directory, folder_path, f"face_{count}_left_right.jpg")
+                    ver_flip_path = os.path.join(target_directory, folder_path, f"face_{count}_top_bottom.jpg")
+
+                    cv2.imwrite(hoz_flip_path, hoz_flip)
+                    cv2.imwrite(ver_flip_path, ver_flip)
                     save_path = os.path.join(target_directory, folder_path,f"face_{count}.jpg")
                     print(save_path)
                     cv2.imwrite(save_path, faces_resize)
@@ -89,7 +96,6 @@ class CamerHaac(object):
         else:
             return None
 
-
 class Camera(object):
 
     def __init__(self):
@@ -101,6 +107,8 @@ class Camera(object):
         self.video.release()
         
     def live_frame(self):
+        name_u  = "unamed"
+        proba_u = 21
         net = cv2.dnn.readNetFromCaffe(r'C:\Users\asus\OneDrive\Desktop\pbl4\davomat\xml_files\service\deploy.prototxt.txt', r'C:\Users\asus\OneDrive\Desktop\pbl4\davomat\xml_files\service\res10_300x300_ssd_iter_140000.caffemodel')
 
         embedder = cv2.dnn.readNetFromTorch(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/openface_nn4.small2.v1.t7')
@@ -112,6 +120,8 @@ class Camera(object):
         if success:
             # img = cv2.imread(image)
             img = image
+
+            # ff = img[ start_row : end_row, start_col : end_col]
             
             (h, w) = img.shape[:2]
             blob = cv2.dnn.blobFromImage(cv2.resize(img, (160, 160)), 1.0,(160,160), (104.0, 177.0, 123.0))
@@ -149,10 +159,15 @@ class Camera(object):
                     name = le.classes_[j]
 
                     colorf = (0, 75, 255)
-                    if proba < 0.51:
+                    if proba < 0.75:
                         name = 'UNKNOWN'
                         colorf = (0, 0, 255)
 
+                    if proba > 75:
+                        f = open( '../userlist.txt', 'w+' )
+                        f.write(f"{name},{proba}\n")
+                        f.close()
+                    
                     text = "{}: {:.2f}%".format(name, proba * 100)
                     y = startY - 10 if startY - 10 > 10 else startY + 10
                     cv2.rectangle(img, (startX, startY), (endX, endY),
@@ -162,6 +177,7 @@ class Camera(object):
 
                     # face = img[startY:endY, startX:endX].copy()
                     # cv2.imwrite(face)
+            
             frame_flip = cv2.flip(image,1)
             ret, jpeg = cv2.imencode('.jpg', frame_flip)
             return jpeg.tobytes()
