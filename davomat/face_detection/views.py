@@ -7,7 +7,7 @@ from .forms import UpdateUserForm , AddUserForm
 from django.http.response import StreamingHttpResponse
 from dataset.test import extract_embeddings,train_model
 from .camera import VideoCamera, Camera
-import subprocess
+import subprocess ,sys
 
 
 def hello(request):
@@ -67,6 +67,16 @@ def gen(camera,username):
           if k > 100:
                break
 
+def uploadeimage(request,username):
+     if request.method == 'POST':
+        uploaded_files = request.FILES.getlist('file-upload')
+        for uploaded_file in uploaded_files:
+            print(uploaded_file,username)
+        return redirect('/users')
+     else:
+        messages.error(request,("Not data!!!"))
+        pass
+     return redirect('/users')
 
 def live(camera):
      while True:
@@ -97,8 +107,14 @@ def open_live(request):
 
 
 def restartmodel(request):
-     
-     extract_embeddings()
-     train_model()
+
+     # DETACHED_PROCESS = 0x00000008
+
+     # pid = subprocess.Popen([sys.executable, r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/extract_embeddings.py'],
+     #                   creationflags=DETACHED_PROCESS).pid
+
+     #subprocess.Popen(["rm","-r",r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/extract_embeddings.py'])
+     # extract_embeddings()
+     # train_model()
 
      return redirect('/users')

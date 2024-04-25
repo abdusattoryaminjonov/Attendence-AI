@@ -10,7 +10,7 @@
                 <div class="d-flex justify-content-between" style="padding: 20px 30px 10px 20px;">
                     <h5 class="card-title text-uppercase mb-0">Manage Users</h5>
                     <div class="d-flex justify-content-around">
-                        
+
                         <div class="d-flex justify-content-evenly" style="align-items: flex-end;">
                             <a href="{% url 'restart_model' %}">Restart model</a>
                         </div>
@@ -102,18 +102,31 @@
                                             <!-- Modal -->
                                             <div class="modal fade" id="p{{i.id}}" tabindex="-1"
                                                 aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
+                                                <div class="modal-dialog" style="max-height: 400px;">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h1 class="modal-title fs-5" id="exampleModalLabel">User
-                                                                models</h1>
+                                                            <h1 class="modal-title fs-5" id="exampleModalLabel">
+                                                                Uploade
+                                                                Images</h1>
                                                             <button type="button" class="btn-close"
                                                                 data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary"
-                                                                data-bs-dismiss="modal">Close</button>
-                                                        </div>
+                                                        <form action="{% url 'uploade_file_image' i.username %}" method="post" enctype="multipart/form-data">
+                                                            <div class="modal-body d-flex justify-content-center" 
+                                                                style="max-height: 400px;overflow-y: auto; ">
+                                                                <label for="file-upload" class="custom-file-upload">
+                                                                    <i class="fa-solid fa-cloud-arrow-up fa-2xl"
+                                                                        style="color: #5d71eb;"></i>
+                                                                </label>
+                                                                <input id="file-upload" type="file" multiple
+                                                                    style="display:none;">
+                                                                <div id="image-preview"></div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button"
+                                                                    class="btn btn-success">Uploade</button>
+                                                            </div>
+                                                        </form>
                                                     </div>
                                                 </div>
                                             </div>
@@ -156,6 +169,43 @@
                                 </td>
                             </tr>
                             <script>
+                                document.getElementById('file-upload').addEventListener('change', function (event) {
+                                    // const uploade = false;
+                                    const fileList = event.target.files;
+                                    const imagePreview = document.getElementById('image-preview');
+                                    // if (event.target.files > 0) {
+                                    //     uploade = true;
+                                    // }
+                                    // Clear previous previews
+                                    imagePreview.innerHTML = '';
+                                    // Loop through each selected file
+                                    for (let i = 0; i < fileList.length; i++) {
+                                        const file = fileList[i];
+
+                                        // Check if the file is an image
+                                        if (!file.type.startsWith('image/')) {
+                                            console.log('File is not an image:', file.name);
+                                            continue;
+                                        }
+
+                                        // Read the image file as a data URL
+                                        const reader = new FileReader();
+                                        reader.onload = function (event) {
+                                            const imageUrl = event.target.result;
+                                            // Create an <img> element to display the image
+                                            const imgElement = document.createElement('img');
+                                            imgElement.src = imageUrl;
+                                            imgElement.style.maxWidth = '100px'; // Adjust image size if needed
+                                            imgElement.style.marginRight = '10px'; // Adjust spacing if needed
+                                            // Append the <img> element to the image preview container
+                                            imagePreview.appendChild(imgElement);
+                                        }
+                                        reader.readAsDataURL(file);
+                                    }
+                                });
+
+
+
                                 document.getElementById('btn-camera{{i.id}}').addEventListener('click', function () {
                                     let image_src = this.dataset.id;
                                     console.log(image_src);

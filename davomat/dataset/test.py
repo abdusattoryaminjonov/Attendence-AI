@@ -114,6 +114,7 @@ def train_model():
     f.write(pickle.dumps(le))
     f.close()
 
+
 # import os
 # import sys
 # os.system("python -i C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/extract_embeddings.py")

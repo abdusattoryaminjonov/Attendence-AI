@@ -39,7 +39,7 @@
                     </li>
                 </ul>
 
-                <div class="d-flex justify-content-between" >
+                <div class="d-flex justify-content-between">
                     <div style="margin-right: 10px;">
                         <p id="demo"></p>
                     </div>
@@ -50,7 +50,7 @@
                         </button>
                     </form>
                 </div>
-               
+
             </div>
         </div>
     </nav>
@@ -60,11 +60,14 @@
             console.log(image_src);
             document.getElementById('camera').setAttribute('src', image_src);
         })
-        // document.getElementById('btn-close{{i.id}}').addEventListener('click', function () {
-        //     let image_src = this.dataset.id;
-        //     console.log(image_src);
-        //     document.getElementById('camera{{i.id}}').setAttribute('src', '');
-        // })
+
+        setInterval(myTimer, 1000);
+
+        function myTimer() {
+            const date = new Date();
+            document.getElementById("demo").innerHTML = date.toLocaleTimeString();
+        }
+
     </script>
     <div style="margin-top: 20px;">
         {% block content %}
@@ -74,14 +77,5 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 </body>
-
-<script>
-    setInterval(myTimer, 1000);
-
-    function myTimer() {
-        const date = new Date();
-        document.getElementById("demo").innerHTML = date.toLocaleTimeString();
-    }
-</script>
 
 </html>

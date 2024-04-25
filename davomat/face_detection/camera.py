@@ -21,6 +21,9 @@ videocam = cv2.CascadeClassifier(os.path.join(
     settings.BASE_DIR,'xml_files/haarcascade_frontalface_default.xml'
 ))
 
+# class UploadeImage(object):
+
+
 class VideoCamera(object):
 
     def __init__(self):
@@ -100,17 +103,19 @@ class Camera(object):
 
     def __init__(self):
         self.video = cv2.VideoCapture(0)
-        # self.video.set(cv2.CAP_PROP_FRAME_WIDTH,1000)
-        # self.video.set(cv2.CAP_PROP_FRAME_HEIGHT,800)
+        
     
     def __del__(self):
         self.video.release()
         
     def live_frame(self):
-        name_u  = "unamed"
-        proba_u = 21
-        net = cv2.dnn.readNetFromCaffe(r'C:\Users\asus\OneDrive\Desktop\pbl4\davomat\xml_files\service\deploy.prototxt.txt', r'C:\Users\asus\OneDrive\Desktop\pbl4\davomat\xml_files\service\res10_300x300_ssd_iter_140000.caffemodel')
 
+        current_datetime = datetime.datetime.now()
+
+        formatted_datetime = current_datetime.strftime('%d-%m-%Y %H:%M:%S')
+
+        file_path = r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/face_detection/userlist.txt'
+        net = cv2.dnn.readNetFromCaffe(r'C:\Users\asus\OneDrive\Desktop\pbl4\davomat\xml_files\service\deploy.prototxt.txt', r'C:\Users\asus\OneDrive\Desktop\pbl4\davomat\xml_files\service\res10_300x300_ssd_iter_140000.caffemodel')
         embedder = cv2.dnn.readNetFromTorch(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/openface_nn4.small2.v1.t7')
         recognizer = pickle.loads(open(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/output/recognizer.pickle', "rb").read())
         le = pickle.loads(open(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/output/le.pickle', "rb").read())
@@ -159,14 +164,19 @@ class Camera(object):
                     name = le.classes_[j]
 
                     colorf = (0, 75, 255)
+
+                    
                     if proba < 0.75:
                         name = 'UNKNOWN'
                         colorf = (0, 0, 255)
-
-                    if proba > 75:
-                        f = open( '../userlist.txt', 'w+' )
-                        f.write(f"{name},{proba}\n")
-                        f.close()
+                    else :
+                        with open(file_path, 'r') as f:
+                            existing_names = f.read().splitlines()
+                        if name in existing_names:
+                            print("Name already exists. Not writing to file.")
+                        else:
+                            with open(file_path, 'a') as f:
+                                f.write(f"{name},{formatted_datetime}\n")
                     
                     text = "{}: {:.2f}%".format(name, proba * 100)
                     y = startY - 10 if startY - 10 > 10 else startY + 10
