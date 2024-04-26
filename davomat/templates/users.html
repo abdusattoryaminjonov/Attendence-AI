@@ -74,7 +74,7 @@
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Close"></button>
                                                     </div>
-                                                    <div class="modal-body">
+                                                    <div class="modal-body" style="max-height: 400px;overflow-y: auto; ">
                                                         <div class="modal-body">
                                                             {% for f in i.imagemodel_set.all %}
                                                             <img src="{{f.image.url}}" style="width: 200px;" alt="">
@@ -111,19 +111,22 @@
                                                             <button type="button" class="btn-close"
                                                                 data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
-                                                        <form action="{% url 'uploade_file_image' i.username %}" method="post" enctype="multipart/form-data">
-                                                            <div class="modal-body d-flex justify-content-center" 
+                                                        <form action="{% url 'uploade_file_image' i.username %}"
+                                                            method="post" enctype="multipart/form-data">
+                                                            {% csrf_token %}
+                                                            <div class="modal-body d-flex justify-content-center"
                                                                 style="max-height: 400px;overflow-y: auto; ">
-                                                                <label for="file-upload" class="custom-file-upload">
+                                                                <label for="file-upload_{{i.pk}}"
+                                                                    class="custom-file-upload">
                                                                     <i class="fa-solid fa-cloud-arrow-up fa-2xl"
                                                                         style="color: #5d71eb;"></i>
                                                                 </label>
-                                                                <input id="file-upload" type="file" multiple
-                                                                    style="display:none;">
-                                                                <div id="image-preview"></div>
+                                                                <input id="file-upload_{{i.pk}}" type="file" multiple
+                                                                    style="display:none;" name="files">
+                                                                <div id="image-preview_{{i.pk}}"></div>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <button type="button"
+                                                                <button type="submit"
                                                                     class="btn btn-success">Uploade</button>
                                                             </div>
                                                         </form>
@@ -169,10 +172,12 @@
                                 </td>
                             </tr>
                             <script>
-                                document.getElementById('file-upload').addEventListener('change', function (event) {
+
+                                document.getElementById('file-upload' + "_{{ i.pk }}").addEventListener('change', function (event) {
                                     // const uploade = false;
                                     const fileList = event.target.files;
-                                    const imagePreview = document.getElementById('image-preview');
+                                    const imagePreview = document.getElementById('image-preview' + "_{{ i.pk }}");
+                                    console.log(imagePreview);
                                     // if (event.target.files > 0) {
                                     //     uploade = true;
                                     // }

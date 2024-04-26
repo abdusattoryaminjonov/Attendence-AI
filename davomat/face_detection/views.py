@@ -8,6 +8,7 @@ from django.http.response import StreamingHttpResponse
 from dataset.test import extract_embeddings,train_model
 from .camera import VideoCamera, Camera
 import subprocess ,sys
+import cv2
 
 
 def hello(request):
@@ -68,9 +69,15 @@ def gen(camera,username):
                break
 
 def uploadeimage(request,username):
+     from face_detection.models import ImageModel
      if request.method == 'POST':
-        uploaded_files = request.FILES.getlist('file-upload')
+        uploaded_files = request.FILES.getlist('files')
         for uploaded_file in uploaded_files:
+            im = ImageModel()
+            usr = User.objects.filter(username=username).first()
+            im.user = usr
+            im.image = uploaded_file
+            im.save()
             print(uploaded_file,username)
         return redirect('/users')
      else:
