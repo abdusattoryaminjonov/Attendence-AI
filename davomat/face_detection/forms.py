@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm,UserChangeForm
 
 
+
+
 class AddUserForm(UserCreationForm):
 	email = forms.EmailField(required=True)
 
@@ -30,3 +32,4 @@ class UpdateUserForm(UserChangeForm):
 		self.fields['username'].label = ''
 		self.fields['username'].help_text = '<span class="form-text text-muted"><small>Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</small></span>'
 
+	

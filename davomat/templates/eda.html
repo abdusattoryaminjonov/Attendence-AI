@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block content%}
+{% load static %}
+
+<style>
+    .background-container {
+        background-image: url('{% static "images/rasim2.jpg" %}');
+        background-size: cover;
+        background-repeat: no-repeat;
+        /* background-attachment: fixed; */
+        width: 100%;
+        height: 100vh;
+        padding-top: 10px;
+        margin-top: -20px;
+    }
+
+    .mytable th,
+    .mytable td {
+        padding: 0.1rem !important;
+
+    }
+</style>
+
+<div class="background-container">
+    <div>
+        <div class="d-flex justify-content-center" style="color: white;">
+            <div>
+                <button type="button" class="btn btn-light" onclick="showHTML('1')">
+                    <i class="fa-solid fa-user fa-lg" style="color: #2343b5;"></i>
+                </button>
+                <button type="button" class="btn btn-light" onclick="showHTML('2')">
+                    <i class="fa-solid fa-code-compare fa-lg" style="color: #2343b5;"></i>
+                </button>
+                <button type="button" class="btn btn-light" onclick="showHTML('3')">
+                    <i class="fa-solid fa-strikethrough fa-lg" style="color: #2343b5;"></i>
+                </button>
+                <button type="button" class="btn btn-light" onclick="showHTML('4')">
+                    <i class="fa-solid fa-chart-simple fa-lg" style="color: #2343b5;"></i>
+                </button>
+                <button type="button" class="btn btn-light" onclick="showHTML('5')">
+                    <i class="fa-solid fa-circle-notch fa-lg" style="color: #2343b5;"></i>
+                </button>
+            </div>
+        </div>
+        <br>
+        <div style="margin-top: 20px;">
+            <div id="html-content-1" class="html-content "
+                style="color: white; margin: auto; text-align: center;display: block;">
+                {% include 'image_dataset_statistics.html' %}
+            </div>
+            <div id="html-content-2" class="html-content " style="text-align: center;">
+                <img style="height: 500px;width: 800px;" src="{% static 'eda_img/Underfitting_or_Overfitting.png' %}"
+                    alt="">
+            </div>
+            <div id="html-content-3" class="html-content " style="text-align: center;">
+                <img style="height: 500px;width: 1000px;" src="{% static 'eda_img/accuracy_and_loss.png' %}" alt="">
+            </div>
+            <div id="html-content-4" class="html-content " style="text-align: center;">
+                <img style="height: 500px;width: 800px;" src="{% static 'eda_img/eda.png' %}" alt="">
+            </div>
+
+            <div id="html-content-5" class="html-content " style="margin: auto; width: 800px;height: 800px;">
+                {% include 'fig.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', function () {
+        // Call the showHTML function with ID '1' to display content associated with button 1
+        showHTML('1');
+    });
+    function showHTML(id) {
+        // Hide all HTML content elements
+        var htmlContents = document.getElementsByClassName('html-content');
+        for (var i = 0; i < htmlContents.length; i++) {
+            htmlContents[i].style.display = 'none';
+        }
+        // Show the selected HTML content element
+        var selectedHTML = document.getElementById('html-content-' + id);
+        if (selectedHTML) {
+            selectedHTML.style.display = 'block';
+        }
+    }
+</script>
+
+{% endblock %}

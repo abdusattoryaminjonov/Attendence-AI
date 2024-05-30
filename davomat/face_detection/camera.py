@@ -1,4 +1,4 @@
-import cv2 , os
+import cv2 , os ,urllib.request
 import numpy as np
 import datetime
 import imutils
@@ -6,15 +6,6 @@ import pickle
 from PIL import Image
 from django.conf import settings
 from davomat import settings
-
-# net = cv2.dnn.readNetFromCaffe(
-#     'xml_files/service/deploy.prototxt.txt', 'xml_files/service/res10_300x300_ssd_iter_140000.caffemodel'
-# )
-
-# net = cv2.dnn.readNetFromCaffe(settings.BASE_DIR / 'xml_files/service/deploy.prototxt.txt', settings.BASE_DIR / 'xml_files/service/res10_300x300_ssd_iter_140000.caffemodel')
-# net = cv2.dnn.readNetFromCaffe(r'C:\Users\asus\OneDrive\Desktop\pbl4\davomat\xml_files\service\deploy.prototxt.txt', r'C:\Users\asus\OneDrive\Desktop\pbl4\davomat\xml_files\service\res10_300x300_ssd_iter_140000.caffemodel')
-
-# print(net)
 
 
 videocam = cv2.CascadeClassifier(os.path.join(
@@ -41,7 +32,7 @@ class VideoCamera(object):
             faces_detected = videocam.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
             print(faces_detected)
             for (x, y, w, h) in faces_detected:
-                target_directory = 'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/'
+                target_directory = 'C:/Users/Pbl4/pbl4/davomat/'
                 
                 face = image[y:y+h, x:x+w]
                 faces_resize = cv2.resize(face, (160, 160), interpolation=cv2.INTER_LINEAR)
@@ -55,13 +46,21 @@ class VideoCamera(object):
                     hoz_flip = cv2.flip(faces_resize, 1)
                     ver_flip = cv2.flip(faces_resize, 0)
 
+                    img_array = np.array(faces_resize)
+                    imgcolorg2 = img_array[:,:,2] 
+                    imgcolorg0 = img_array[:,:,0] 
+
                     hoz_flip_path = os.path.join(target_directory, folder_path, f"face_{count}_left_right.jpg")
                     ver_flip_path = os.path.join(target_directory, folder_path, f"face_{count}_top_bottom.jpg")
+                    imgcolor2_flip_path = os.path.join(target_directory, folder_path, f"face_{count}_color2.jpg")
+                    imgcolor0_flip_path = os.path.join(target_directory, folder_path, f"face_{count}_color0.jpg")
 
+                    cv2.imwrite(imgcolor2_flip_path,imgcolorg2)
+                    cv2.imwrite(imgcolor0_flip_path,imgcolorg0)
                     cv2.imwrite(hoz_flip_path, hoz_flip)
                     cv2.imwrite(ver_flip_path, ver_flip)
+                    
                     save_path = os.path.join(target_directory, folder_path,f"face_{count}.jpg")
-                    print(save_path)
                     cv2.imwrite(save_path, faces_resize)
         else:
             return 
@@ -70,31 +69,73 @@ class VideoCamera(object):
         ret, jpeg = cv2.imencode('.jpg', img)
         return jpeg.tobytes()
 
-class CamerHaac(object):
+class CameraHa(object):
 
     def __init__(self):
         self.video = cv2.VideoCapture(0)
-        # self.video.set(cv2.CAP_PROP_FRAME_WIDTH,1000)
-        # self.video.set(cv2.CAP_PROP_FRAME_HEIGHT,800)
+        # self.video = cv2.VideoCapture(r"C:\Users\Pbl4\pbl4\davomat\static\video\user2.mp4")
 
     def __del__(self):
         self.video.release()
         
     def live_frame(self):
+        current_datetime = datetime.datetime.now()
+        formatted_datetime = current_datetime.strftime('%d-%m-%Y %H:%M:%S')
+
+        file_path = r'C:\Users\Pbl4\pbl4\davomat\static\userlist.txt'
+        embedder = cv2.dnn.readNetFromTorch(r'C:/Users/Pbl4/pbl4/davomat/dataset/openface_nn4.small2.v1.t7')
+        recognizer = pickle.loads(open(r'C:/Users/Pbl4/pbl4/davomat/dataset/output/recognizer.pickle', "rb").read())
+        le = pickle.loads(open(r'C:/Users/Pbl4/pbl4/davomat/dataset/output/le.pickle', "rb").read())
+
         success, image = self.video.read()
+        frame_flip = cv2.flip(image,1)
+        
+        image = frame_flip
+
         if success:
 		
 
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             faces_detected = videocam.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
             for (x, y, w, h) in faces_detected:
+                face = image[y:y+h, x:x+w]
+                (fH, fW) = face.shape[:2]
+                if fW < 20 or fH < 20:
+                        continue
+                faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255, (96, 96),
+                                             (0, 0, 0), swapRB=True, crop=False)
+                    
+                embedder.setInput(faceBlob)
+                vec = embedder.forward()
+                preds = recognizer.predict_proba(vec)[0]
+                j = np.argmax(preds)
+                proba = preds[j]
+                name = le.classes_[j]
 
-                # face = image[y:y+h, x:x+w]
-                # faces_resize = cv2.resize(face, (160, 160), interpolation=cv2.INTER_LINEAR)
+                colorf = (255, 0, 0)
+                if proba < 0.55:
+                        name = 'UNKNOWN'
+                        colorf = (0, 0, 255)
+                else :
+                    try:
+                        with open(file_path, 'r+') as f:
+                            lines = f.readlines()
+                            names = list(map(lambda x: x.strip().split(',')[0],lines))
+                            print(names)
+                            if name in names:
+                                print("Name found in file.")
+                            else:
+                                f.write(f"{name},{formatted_datetime}\n")
+                                f.close()
+                    except:
+                        pass
+                text = "{}: {:.2f}%".format(name, proba * 100)
+                Y = y - 10 if y - 10 > 10 else y + 10
 
                 cv2.rectangle(image, pt1=(x, y), pt2=(x + w, y + h), color=(255, 0, 0), thickness=2)
-            frame_flip = cv2.flip(image,1)
-            ret, jpeg = cv2.imencode('.jpg', frame_flip)
+                cv2.putText(image, text, (x, Y), cv2.FONT_HERSHEY_SIMPLEX, 0.75, colorf, 2)
+
+            ret, jpeg = cv2.imencode('.jpg', image)
             return jpeg.tobytes()
         else:
             return None
@@ -102,6 +143,9 @@ class CamerHaac(object):
 class Camera(object):
 
     def __init__(self):
+        # self.video = cv2.VideoCapture(r"C:\Users\Pbl4\pbl4\davomat\static\video\vid.mp4")
+        # self.video = cv2.VideoCapture(r"C:\Users\Pbl4\pbl4\davomat\static\video\users2.mp4")
+        # self.video = cv2.VideoCapture(r"C:\Users\Pbl4\pbl4\davomat\static\video\usersall.mp4")
         self.video = cv2.VideoCapture(0)
         
     
@@ -114,15 +158,15 @@ class Camera(object):
 
         formatted_datetime = current_datetime.strftime('%d-%m-%Y %H:%M:%S')
 
-        file_path = r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/static/userlist.txt'
-        net = cv2.dnn.readNetFromCaffe(r'C:\Users\asus\OneDrive\Desktop\pbl4\davomat\xml_files\service\deploy.prototxt.txt', r'C:\Users\asus\OneDrive\Desktop\pbl4\davomat\xml_files\service\res10_300x300_ssd_iter_140000.caffemodel')
-        embedder = cv2.dnn.readNetFromTorch(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/openface_nn4.small2.v1.t7')
-        recognizer = pickle.loads(open(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/output/recognizer.pickle', "rb").read())
-        le = pickle.loads(open(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/output/le.pickle', "rb").read())
-
+        file_path = r'C:\Users\Pbl4\pbl4\davomat\static\userlist.txt'
+        net = cv2.dnn.readNetFromCaffe(r'C:/Users/Pbl4/pbl4/davomat/xml_files/service/deploy.prototxt.txt', r'C:/Users/Pbl4/pbl4/davomat/xml_files/service/res10_300x300_ssd_iter_140000.caffemodel')
+        embedder = cv2.dnn.readNetFromTorch(r'C:/Users/Pbl4/pbl4/davomat/dataset/openface_nn4.small2.v1.t7')
+        recognizer = pickle.loads(open(r'C:/Users/Pbl4/pbl4/davomat/dataset/output/recognizer.pickle', "rb").read())
+        le = pickle.loads(open(r'C:/Users/Pbl4/pbl4/davomat/dataset/output/le.pickle', "rb").read())
         success, image = self.video.read()
 
         image = cv2.flip(image,1)
+        # image = cv2.flip(image,0)
 
         if success:
             # img = cv2.imread(image)
@@ -172,20 +216,18 @@ class Camera(object):
                         name = 'UNKNOWN'
                         colorf = (0, 0, 255)
                     else :
-                        with open(file_path, 'r') as f:
-                            lines = f.readlines()
-
-                            for line in lines:
-                                print("======================================")
-                                print(name)
-                                # Split the line by commas
-                                names = line.strip().split(',')
-                                # Check if the name is in the list of names
+                        try:
+                            with open(file_path, 'r+') as f:
+                                lines = f.readlines()
+                                names = list(map(lambda x: x.strip().split(',')[0],lines))
+                                print(names)
                                 if name in names:
                                     print("Name found in file.")
                                 else:
-                                     with open(file_path, 'a') as f:
-                                        f.write(f"{name},{formatted_datetime}\n")
+                                    f.write(f"{name},{formatted_datetime}\n")
+                                    f.close()
+                        except:
+                            pass
                     
                     text = "{}: {:.2f}%".format(name, proba * 100)
                     y = startY - 10 if startY - 10 > 10 else startY + 10
@@ -197,3 +239,26 @@ class Camera(object):
             return jpeg.tobytes()
         else:
             return None
+
+
+class CameraTel(object):
+	def __init__(self):
+		self.url = "http://192.168.137.247:8080/shot.jpg"
+
+	def __del__(self):
+		cv2.destroyAllWindows()
+
+	def live_frame(self):
+		imgResp = urllib.request.urlopen(self.url)
+		imgNp = np.array(bytearray(imgResp.read()),dtype=np.uint8)
+		img= cv2.imdecode(imgNp,-1)
+		
+
+		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		faces_detected =videocam.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
+		for (x, y, w, h) in faces_detected:
+			cv2.rectangle(img, pt1=(x, y), pt2=(x + w, y + h), color=(255, 0, 0), thickness=2)
+		resize = cv2.resize(img, (640, 480), interpolation = cv2.INTER_LINEAR) 
+		frame_flip = cv2.flip(resize,1)
+		ret, jpeg = cv2.imencode('.jpg', frame_flip)
+		return jpeg.tobytes()

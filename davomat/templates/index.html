@@ -15,32 +15,24 @@
                                     <th><span>Email</span></th>
                                     <th><span>Available DA</span></th>
                                     <th><span>Absent DA</span></th>
-                                    <th><i class="fa-regular fa-trash-can fa-lg" style="color: #000000;"></i></th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for i in users%}
                                 <tr>
                                     <td>
-                                        <a href="#" class="link-underline-light">User Name</a>
+                                    <a href="#" class="link-underline-light">{{i.user.first_name}}
+                                            {{i.user.last_name}}</a>
+                                        <!-- <a href="#" class="link-underline-light">{{i.user}}</a> -->
                                     </td>
                                     <td>
-                                        <a href="#" class="link-underline-light">marlon@brando.com</a>
+                                        <a href="#" class="link-underline-light">{{i.user.email}}</a>
+                                        <!-- <a href="#" class="link-underline-light">dddd</a> -->
                                     </td>
-                                    <td>19/04/2024 09:00 </td>
-                                    <td>19/04/2024 14:50 </td>
-                                    <td><i class="fa-regular fa-circle-xmark fa-lg" style="color: #f04c4c;"></i></td>
+                                    <td>{{i.date_came}}</td>
+                                    <td> - </td>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        <a href="#" class="link-underline-light">User Name</a>
-                                    </td>
-                                    <td>
-                                        <a href="#" class="link-underline-light">marlon@brando.com</a>
-                                    </td>
-                                    <td>19/04/2024 09:00 </td>
-                                    <td>19/04/2024 14:50 </td>
-                                    <td ><i class="fa-regular fa-circle-xmark fa-lg" style="color: #f04c4c;"></i></td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>

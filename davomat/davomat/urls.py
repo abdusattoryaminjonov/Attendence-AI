@@ -31,10 +31,9 @@ urlpatterns = [
     path('video/', views.video, name='video'),
     path('uploadeimage/<str:username>', views.uploadeimage, name='uploade_file_image'),
     path('camera/', views.open_live, name='open_live'),
-    path('restart_model/', views.restartmodel, name='restart_model')
-
-    
-
+    path('restart_model/', views.restartmodel, name='restart_model'),
+    path('attendance/', views.attendance, name='attendance'),
+    path('eda/', views.eda, name='eda'),
 ] 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

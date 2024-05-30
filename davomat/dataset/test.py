@@ -1,122 +1,28 @@
-from imutils import paths
-import numpy as np
-import imutils
-import pickle
-import cv2
-import os
+import json
 
-from sklearn.preprocessing import LabelEncoder
-from sklearn.svm import SVC
+def model():
+    filename = r'C:\Users\Pbl4\pbl4\davomat\dataset\model.ipynb'
+    
+    try:
+        with open(filename, encoding='utf-8') as fp:
+            nb = json.load(fp)
+    except FileNotFoundError:
+        print(f"Error: The file {filename} was not found.")
+        return
+    except json.JSONDecodeError:
+        print("Error: Failed to decode JSON from the notebook file.")
+        return
+    except UnicodeDecodeError as e:
+        print(f"Error: Unicode decode error: {e}")
+        return
+    
+    try:
+        for cell in nb.get('cells', []):
+            if cell.get('cell_type') == 'code':
+                source = ''.join(line for line in cell.get('source', []) if not line.startswith('%'))
+                exec(source, globals(), locals())
+    except Exception as e:
+        print(f"Error while executing code from notebook: {e}")
 
-def extract_embeddings():
-    # import the necessary packages
-
-    detector = cv2.dnn.readNetFromCaffe(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/xml_files/service/deploy.prototxt.txt',
-                                        r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/xml_files/service/res10_300x300_ssd_iter_140000.caffemodel')
-    # load our serialized face embedding model from disk
-    print("[INFO] loading face recognizer...")
-    embedder = cv2.dnn.readNetFromTorch(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/openface_nn4.small2.v1.t7')
-
-    # grab the paths to the input images in our dataset
-    print("[INFO] quantifying faces...")
-    imagePaths = list(paths.list_images('origin_images'))
-    # initialize our lists of extracted facial embeddings and
-    # corresponding people names
-    knownEmbeddings = []
-    knownNames = []
-    # initialize the total number of faces processed
-    total = 0
-
-    # loop over the image paths
-    for (i, imagePath) in enumerate(imagePaths):
-        # extract the person name from the image path
-        print("[INFO] processing image {}/{}".format(i + 1, len(imagePaths)))
-        name = imagePath.split(os.path.sep)[-2]
-        # load the image, resize it to have a width of 600 pixels (while
-        # maintaining the aspect ratio), and then grab the image
-        # dimensions
-        image = cv2.imread(imagePath)
-        image = imutils.resize(image, width=160)
-        (h, w) = image.shape[:2]
-        # construct a blob from the image
-        imageBlob = cv2.dnn.blobFromImage(cv2.resize(image, (160, 160)),
-                                        1.0, (160, 160), (104.0, 177.0, 123.0),
-                                        swapRB=False, crop=False)
-        # apply OpenCV's deep learning-based face detector to localize
-        # faces in the input image
-        detector.setInput(imageBlob)
-        detections = detector.forward()
-
-        # ensure at least one face was found
-        if len(detections) > 0:
-            # we're making the assumption that each image has only ONE
-            # face, so find the bounding box with the largest probability
-            i = np.argmax(detections[0, 0, :, 2])
-            confidence = detections[0, 0, i, 2]
-            # ensure that the detection with the largest probability also
-            # means our minimum probability test (thus helping filter out
-            # weak detections)
-            if confidence > 0.4:
-                # compute the (x, y)-coordinates of the bounding box for
-                # the face
-                box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
-                (startX, startY, endX, endY) = box.astype("int")
-                # extract the face ROI and grab the ROI dimensions
-                face = image[startY:endY, startX:endX]
-                (fH, fW) = face.shape[:2]
-                # ensure the face width and height are sufficiently large
-                if fW < 20 or fH < 20:
-                    continue
-
-                # construct a blob for the face ROI, then pass the blob
-                # through our face embedding model to obtain the 128-d
-                # quantification of the face
-                faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255,
-                                                (96, 96), (0, 0, 0),
-                                                swapRB=True, crop=False)
-                embedder.setInput(faceBlob)
-                vec = embedder.forward()
-                # add the name of the person + corresponding face
-                # embedding to their respective lists
-                knownNames.append(name)
-                knownEmbeddings.append(vec.flatten())
-                total += 1
-
-    # dump the facial embeddings + names to disk
-    print("[INFO] serializing {} encodings...".format(total))
-    data = {"embeddings": knownEmbeddings, "names": knownNames}
-    f = open(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/output/embeddings.pickle', "wb")
-    f.write(pickle.dumps(data))
-    f.close()
-
-def train_model():
-    # import the necessary packages
-    # load the face embeddings
-    print("[INFO] loading face embeddings...")
-    data = pickle.loads(open(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/output/embeddings.pickle', "rb").read())
-    # encode the labels
-    print("[INFO] encoding labels...")
-    le = LabelEncoder()
-    labels = le.fit_transform(data["names"])
-
-    # train the model used to accept the 128-d embeddings of the face and
-    # then produce the actual face recognition
-    print("[INFO] training model...")
-    recognizer = SVC(C=2.0, kernel="linear", tol=0.0001, decision_function_shape='ovo', probability=True)
-    recognizer.fit(data["embeddings"], labels)
-
-    # write the actual face recognition model to disk
-    f = open(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/output/recognizer.pickle', "wb")
-    f.write(pickle.dumps(recognizer))
-    f.close()
-    # write the label encoder to disk
-    f = open(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/output/le.pickle', "wb")
-    f.write(pickle.dumps(le))
-    f.close()
-
-
-# import os
-# import sys
-# os.system("python -i C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/extract_embeddings.py")
-# # exec(open(r'C:/Users/asus/OneDrive/Desktop/pbl4/davomat/dataset/extract_embeddings.py').read())
-# # train_model()
+if __name__ == "__main__":
+    model()

@@ -24,6 +24,16 @@
                                         <div class="table-responsive"
                                             style="width:100%;overflow:auto; max-height:470px;">
                                             <!-- <table class="table user-list">
+                                                
+                                                <tr>
+                                                                                                        <td style="color: rgb(32, 32, 218);font-size: 17px;">
+                                                                                                            Abdusattor Yaminjonov
+                                                                                                        </td>
+                                                                                                        <td style="font-size: 15px;">19/04/2024 09:00 </td>
+                                                                                                        <td style="font-size: 15px;">19/04/2024 14:50 </td>
+                                                                                                    </tr>
+                                            </table> -->
+                                            <table class="table" border="1">
                                                 <thead class="sticky-top bg-white">
                                                     <tr>
                                                         <th><span>User</span></th>
@@ -31,17 +41,8 @@
                                                         <th><span>Absent DA</span></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="dataBody">
-                                                    <tr>
-                                                        <td style="color: rgb(32, 32, 218);font-size: 17px;">
-                                                            Abdusattor Yaminjonov
-                                                        </td>
-                                                        <td style="font-size: 15px;">19/04/2024 09:00 </td>
-                                                        <td style="font-size: 15px;">19/04/2024 14:50 </td>
-                                                    </tr>
+                                                <tbody id="dataBody" class="table user-list">
                                                 </tbody>
-                                            </table> -->
-                                            <table id="dataBody"  class="table" border="1">
                                             </table>
 
                                             <script>
@@ -64,12 +65,12 @@
                                                             const tbody = document.getElementById('dataBody');
 
                                                             // Clear existing rows
-                                                            tbody.innerHTML = '';
+                                                            tbody.innerHTML = ' ';
 
                                                             // Loop through the rows and create table rows
                                                             rows.forEach(row => {
                                                                 // Split each row into columns using comma as delimiter
-                                                                const columns = row.split(', ');
+                                                                const columns = row.split(',');
 
                                                                 // Create a table row
                                                                 const tr = document.createElement('tr');
@@ -109,71 +110,17 @@
                             </div>
                         </div>
                     </div>
-
+                    <form action="{% url 'attendance' %}" method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <h4>Loading data into the database</h4>
+                            <button type="submit" class="btn btn-primary">uploade</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    // Define the path to the text file
-    const filePath = 'file:///C:/Users/asus/OneDrive/Desktop/pbl4/davomat/face_detection/userlist.txt';
-
-    // Function to fetch and update data
-    function fetchDataAndUpdateTable() {
-        fetch(filePath)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                return response.text();
-            })
-            .then(data => {
-                // Split the data into rows using line breaks
-                const rows = data.trim().split('\n');
-
-                // Get a reference to the table body
-                const tbody = document.getElementById('dataBody');
-
-                // Clear existing rows
-                tbody.innerHTML = '';
-
-                // Loop through the rows and create table rows
-                rows.forEach(row => {
-                    // Split each row into columns using comma as delimiter
-                    const columns = row.split(', ');
-
-                    // Create a table row
-                    const tr = document.createElement('tr');
-
-                    // Loop through the columns and create table cells
-                    columns.forEach(column => {
-                        // Split each column using a different delimiter
-                        const parts = column.split('/');
-
-                        // Create a table cell
-                        const td = document.createElement('td');
-                        // Join the parts back together with a space delimiter
-                        td.textContent = parts.join(' ');
-                        // Append the cell to the row
-                        tr.appendChild(td);
-                    });
-
-                    // Append the row to the table body
-                    tbody.appendChild(tr);
-                });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
-
-    // Call the function initially
-    fetchDataAndUpdateTable();
-
-    // Set interval to fetch and update data every 5 seconds (for example)
-    setInterval(fetchDataAndUpdateTable, 5000); // 5000 milliseconds = 5 seconds
-</script>
 
 {% endblock content%}
